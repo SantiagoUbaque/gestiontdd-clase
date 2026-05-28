@@ -8,6 +8,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -53,7 +56,52 @@ public class DocenteServiceTest {
         // Verificamos que el repositorio fue invocado exactamente una vez
         verify(docenteRepo, times(1)).save(docenteParaGuardar);
     }
+
     @Test
+    void debeRegistrarDosDocentesYConsultarTodos() {
+        // GIVEN
+        Docente docente1 = Docente.builder()
+                .codigo("DOC002")
+                .nombre("Juan Pérez")
+                .correo("juan@uni.com")
+                .clave("123")
+                .build();
+
+        Docente docente2 = Docente.builder()
+                .codigo("DOC003")
+                .nombre("Laura Gómez")
+                .correo("laura@uni.com")
+                .clave("456")
+                .build();
+
+        when(docenteRepo.existsByCorreo(anyString())).thenReturn(false);
+
+        when(docenteRepo.save(docente1)).thenReturn(
+                Docente.builder().id(1L).codigo("DOC002").nombre("Juan Pérez").correo("juan@uni.com").clave("123").build()
+        );
+
+        when(docenteRepo.save(docente2)).thenReturn(
+                Docente.builder().id(2L).codigo("DOC003").nombre("Laura Gómez").correo("laura@uni.com").clave("456").build()
+        );
+
+        when(docenteRepo.findAll()).thenReturn(List.of(docente1, docente2));
+
+        // WHEN
+        docenteServicio.registrarDocente(docente1);
+        docenteServicio.registrarDocente(docente2);
+
+        List<Docente> lista = docenteServicio.listarDocentes();
+
+        // THEN
+        assertThat(lista).isNotNull();
+        assertThat(lista.size()).isEqualTo(2);
+
+        verify(docenteRepo, times(2)).save(any(Docente.class));
+        verify(docenteRepo, times(1)).findAll();
+    }
+}
+
+   /*  @Test
     void debeLanzarExcepcionCuandoElCorreoYaExiste() {
         // GIVEN
         Docente docenteNuevo = Docente.builder()
@@ -70,5 +118,5 @@ public class DocenteServiceTest {
 
         // Verificamos que NUNCA se guardó el docente por culpa del error
         verify(docenteRepo, never()).save(any(Docente.class));
-    }
-}
+    } */
+

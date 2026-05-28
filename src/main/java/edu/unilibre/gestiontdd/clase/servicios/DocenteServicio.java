@@ -6,6 +6,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DocenteServicio {
     @Autowired
@@ -17,5 +19,9 @@ public class DocenteServicio {
             throw new IllegalArgumentException("El correo ya existe");
         }
         return docenteRepo.save(docente);
+    }
+
+    public List<Docente> listarDocentes() {
+        return docenteRepo.findAll();
     }
 }
